@@ -90,18 +90,30 @@ class Task
     {
         $task = new self(
             $data['task_number'],
-            sprintf(
-                '%1$s (%2$s)',
-                $data['name'],
-                $data['project']['name']
-            )
+            $data['name']
         );
 
-        $task->setDescription(strip_tags($data['body']));
-        $task->setUpdated(new \DateTime('@' . $data['updated_on']));
-        $task->setCreated(new \DateTime('@' . $data['created_on']));
-        $task->setClosed($data['is_completed']);
-        $task->setIssueUrl($data['instance_url'] . $data['url_path']);
+        if (isset($data['body']) && $data['body'] !== '') {
+            $task->setDescription(
+                trim(
+                    strip_tags(
+                        str_replace(
+                            ['<br />', '</p>'],
+                            "\n",
+                            $data['body']
+                        )
+                    )
+                )
+            );
+        }
+        if (isset($data['updated_on']) && $data['updated_on'] !== '') {
+            $task->setUpdated(new \DateTime('@' . $data['updated_on']));
+        }
+        if (isset($data['created_on']) && $data['created_on'] !== '') {
+            $task->setCreated(new \DateTime('@' . $data['created_on']));
+        }
+        $task->setClosed((bool) $data['is_completed']);
+        $task->setIssueUrl($data['url_path']);
 
         return $task;
     }
