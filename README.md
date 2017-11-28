@@ -1,6 +1,6 @@
 # ActiveCollab Generic Server for PhpStorm
 
-As there is ni support for [ActiveCollab](https://activecollab.com/) in [PhpStorm](https://www.jetbrains.com/phpstorm/)
+As there is no support for [ActiveCollab](https://activecollab.com/) in [PhpStorm](https://www.jetbrains.com/phpstorm/)
 I wrote this hackish implementation.
 
 With this hack we can have Tasks inside PhpStorm
