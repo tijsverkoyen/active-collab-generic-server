@@ -1,15 +1,14 @@
 # ActiveCollab Generic Server for PhpStorm
 
-As there is ni support for [ActiveCollab](https://activecollab.com/) in [PhpStorm](https://www.jetbrains.com/phpstorm/)
-I wrote this hackish implementation.
-
-With this hack we can have Tasks inside PhpStorm
+As there is no support for [ActiveCollab](https://activecollab.com/) in [PhpStorm](https://www.jetbrains.com/phpstorm/) I
+build this work-around. With this hack we can use the `Open Task` functionality inside PhpStorm
 
 ![tasklist](https://raw.githubusercontent.com/tijsverkoyen/active-collab-generic-server/master/assets/1_tasklist.png)
 
 ## Installation
 
 Download this package on a PHP server and note the url (eg: https://foo.bar.tld).
+Make sure the `public` folder is your document_root.
 
 ## Usage
 
@@ -37,29 +36,41 @@ If you open this url in a browser it will result in a JSON-object like below
 
 ### Configure the Generic Task Server
 
-1. Go to `Tools → Tasks & Contexts → Configure Servers`.
-2. Add a new `Generic` server type.
-3. Enter the url (eg: https://foo.bar.tld).
-4. Check `Login anonymously`.
-5. Open the tab `Server Configuration`.
-6. Click `Manage Template Variables`.
-7. Add the needed variables based on the data we earlier retrieved.
+* Go to "Tools → Tasks & Contexts → Configure Servers ...".
+* Add a new "Generic" server type.
+
+#### General tab
+
+* Enter the url where you installed the "server" (eg: https://foo.bar.tld) in the field "Server URL.
+* Check "Login anonymously".
+
+#### Add needed template variables
+
+* Open the tab "Server Configuration".
+* Click "Manage Template Variables".
+* Add the needed variables based on the data we earlier retrieved.
 
 You should end up with something like:
 
 ![tasklist](https://raw.githubusercontent.com/tijsverkoyen/active-collab-generic-server/master/assets/2_template_variables.png)
 
-8. Configure the `Task List URL`: {serverUrl}/task-list?token={token}&acUrl={acUrl}&userId={userId}
+#### Configure the urls
+
+Set the "Task List URL" to `{serverUrl}/task-list/$projectId?token={token}&acUrl={acUrl}&userId={userId}`, where you
+replace `$projectId` with the project id in Active Collab. 
+
+If the url for your project is `https://app.activecollab.com/123456/projects/789`, the project id is `789`.
+
+
+#### Configure the response type
+
+* Choose `JSON` as the "Response Type".
+* Add the correct paths for each property as indicated in the screenshot below.
 
 ![tasklist](https://raw.githubusercontent.com/tijsverkoyen/active-collab-generic-server/master/assets/3_server_configuration.png)
-
-9. Choose `JSON` as the Response Type and add the correct paths for each property as indicated in the screenshot.
 
 
 ## Known issues
 
 * There is no support for self-hosted ActiveCollab instances.
 * There is no decent error handling. 
-
-
-
