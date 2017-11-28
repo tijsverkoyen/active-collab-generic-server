@@ -26,7 +26,7 @@ class Server
         switch ($request->getPathInfo()) {
             case '/login':
                 return $this->handleLoginRequest($request);
-            case '/task-list':
+            case substr($request->getPathInfo(), 0, 11) == '/task-list/':
                 return $this->handleTaskListRequest($request);
         }
 
@@ -42,34 +42,57 @@ class Server
 
     public function handleTaskListRequest(Request $request): Response
     {
-        $client = new Client($this->token);
-        $response = $client->get(
-            sprintf(
-                '/users/%1$s/tasks',
-                $request->request->get('userId')
-            )
-        )->getJson();
-        $tasks = [];
-
-        foreach ($response['tasks'] as $activeCollabTask) {
-            $activeCollabTask['instance_url'] = $this->token->getUrl();
-            $activeCollabTask['project'] = $response['related']['Project'][$activeCollabTask['project_id']];
-
-            $tasks[] = Task::fromActiveCollab($activeCollabTask)->toArray();
-        }
-
-        usort(
-            $tasks,
-            function ($e1, $e2) {
-                return strcmp($e1['summary'], $e2['summary']);
-            }
-        );
+        $projectId = (int) str_replace('/task-list/', '', $request->getPathInfo());
+        $userId = $request->request->get('userId');
 
         return new JsonResponse(
             [
-                'tasks' => $tasks,
+                'tasks' => $this->getTasksForProject($projectId, $userId),
             ]
         );
+    }
+
+    private function getTasksForProject(int $id, ?int $userId): array
+    {
+        $client = new Client($this->token);
+
+        // get all tasks for a project
+        $tasks = $client->get(
+            sprintf(
+                '/projects/%1$s/tasks',
+                $id
+            )
+        )->getJson()['tasks'];
+
+        // remove tasks that are not assigned on the given user
+        if ($userId !== null) {
+            $tasks = array_filter(
+                $tasks,
+                function ($task) use ($userId) {
+                    return ($task['assignee_id'] === $userId);
+                }
+            );
+        }
+
+        // convert into usable objects
+        $tasks = array_map(
+            function ($task) {
+                $task['url_path'] = $this->token->getUrl() . $task['url_path'];
+
+                return Task::fromActiveCollab($task)->toArray();
+            },
+            $tasks
+        );
+
+        // sort the tasks
+        usort(
+            $tasks,
+            function ($e1, $e2) {
+                return strcmp($e1['id'], $e2['id']);
+            }
+        );
+
+        return $tasks;
     }
 
     public function handleLoginRequest(Request $request): Response

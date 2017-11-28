@@ -90,47 +90,44 @@ class Task
     {
         $task = new self(
             $data['task_number'],
-            sprintf(
-                '%1$s (%2$s)',
-                $data['name'],
-                $data['project']['name']
-            )
+            $data['name']
         );
 
-        $task->setDescription(strip_tags($data['body']));
-        $task->setUpdated(new \DateTime('@' . $data['updated_on']));
-        $task->setCreated(new \DateTime('@' . $data['created_on']));
-        $task->setClosed($data['is_completed']);
-        $task->setIssueUrl($data['instance_url'] . $data['url_path']);
+        if (isset($data['body']) && $data['body'] !== '') {
+            $task->setDescription(
+                trim(
+                    strip_tags(
+                        str_replace(
+                            ['<br />', '</p>'],
+                            "\n",
+                            $data['body']
+                        )
+                    )
+                )
+            );
+        }
+        if (isset($data['updated_on']) && $data['updated_on'] !== '') {
+            $task->setUpdated(new \DateTime('@' . $data['updated_on']));
+        }
+        if (isset($data['created_on']) && $data['created_on'] !== '') {
+            $task->setCreated(new \DateTime('@' . $data['created_on']));
+        }
+        $task->setClosed((bool) $data['is_completed']);
+        $task->setIssueUrl($data['url_path']);
 
         return $task;
     }
 
     public function toArray(): array
     {
-        $data = [
+        return [
             'id' => $this->id,
             'summary' => $this->summary,
+            'description' => $this->description,
+            'updated' => $this->updated->format(\DateTime::ATOM),
+            'created' => $this->created->format(\DateTime::ATOM),
+            'closed' => $this->closed,
+            'issueUrl' => $this->issueUrl,
         ];
-
-        if ($this->description !== null) {
-            $data['description'] = $this->description;
-        }
-
-        if ($this->updated !== null) {
-            $data['updated'] = $this->updated->format(\DateTime::ATOM);
-        }
-
-        if ($this->created !== null) {
-            $data['created'] = $this->created->format(\DateTime::ATOM);
-        }
-        if ($this->closed !== null) {
-            $data['closed'] = $this->closed;
-        }
-        if ($this->issueUrl !== null) {
-            $data['issueUrl'] = $this->issueUrl;
-        }
-
-        return $data;
     }
 }
