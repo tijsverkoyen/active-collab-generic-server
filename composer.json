@@ -3,7 +3,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.1",
-        "monolog/monolog": "^1.23",
+        "activecollab/activecollab-feather-sdk": "^3.1",
         "symfony/http-foundation": "^3.3"
     },
     "require-dev": {

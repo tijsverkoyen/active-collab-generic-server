@@ -2,20 +2,15 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\GenericServer;
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+use App\GenericServer\Server;
 use Symfony\Component\HttpFoundation\Request;
 
-$requestLogger = new Logger('requests');
-$requestLogger->pushHandler(
-    new StreamHandler(
-        __DIR__ . '/../var/log/requests.log',
-        Logger::INFO
-    )
+$request = Request::createFromGlobals();
+$token = new \ActiveCollab\SDK\Token(
+    urldecode($request->request->get('token')),
+    urldecode($request->request->get('acUrl'))
 );
 
-$server = new GenericServer($requestLogger);
-$request = Request::createFromGlobals();
+$server = new Server($token);
 $response = $server->handleRequest($request);
 $response->send();
