@@ -108,29 +108,14 @@ class Task
 
     public function toArray(): array
     {
-        $data = [
+        return [
             'id' => $this->id,
             'summary' => $this->summary,
+            'description' => $this->description,
+            'updated' => $this->updated->format(\DateTime::ATOM),
+            'created' => $this->created->format(\DateTime::ATOM),
+            'closed' => $this->closed,
+            'issueUrl' => $this->issueUrl,
         ];
-
-        if ($this->description !== null) {
-            $data['description'] = $this->description;
-        }
-
-        if ($this->updated !== null) {
-            $data['updated'] = $this->updated->format(\DateTime::ATOM);
-        }
-
-        if ($this->created !== null) {
-            $data['created'] = $this->created->format(\DateTime::ATOM);
-        }
-        if ($this->closed !== null) {
-            $data['closed'] = $this->closed;
-        }
-        if ($this->issueUrl !== null) {
-            $data['issueUrl'] = $this->issueUrl;
-        }
-
-        return $data;
     }
 }
